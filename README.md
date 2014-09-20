@@ -4,7 +4,7 @@ gdfpop
 GDF file reader that can write data from a GDF stream to TinkerPop 2.x graph
 
 #### Usage
-GDFpop provides [GDFReader](https://github.com/anujsrc/gdfpop/blob/dev/src/main/java/org/formcept/gdfpop/GDFReader.java) that takes care of parsing the GDF file stream and populating TinkerPop 2.x Graph that is provided as an input. For more details, please take a look at the [GDFReaderTesT](https://github.com/anujsrc/gdfpop/blob/dev/src/test/java/org/formcept/test/gdfpop/GDFReaderTest.java). For example-
+GDFpop provides [GDFReader](https://github.com/anujsrc/gdfpop/blob/dev/src/main/java/org/formcept/gdfpop/GDFReader.java) that takes care of parsing the GDF file stream and populating TinkerPop 2.x Graph that is provided as an input. For more details, please take a look at the [GDFReaderTest](https://github.com/anujsrc/gdfpop/blob/dev/src/test/java/org/formcept/test/gdfpop/GDFReaderTest.java). For example-
 
 ```
 // initialize TinkerPop Graph
