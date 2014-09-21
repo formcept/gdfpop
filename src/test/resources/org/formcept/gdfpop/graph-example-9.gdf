@@ -1,0 +1,14 @@
+nodedef>name VARCHAR,label VARCHAR,age INT,lang VARCHAR
+1,marko,29,
+2,vadas,27,
+3,lop,,java
+4,josh,32,
+5,ripple,,java
+6,peter,35,
+edgedef>node1 VARCHAR,node2 VARCHAR,name VARCHAR,label VARCHAR,weight FLOAT
+1,2,7,knows,0.5
+1,4,8,knows,1.0
+1,3,9,created,0.4
+4,5,10,created,1.0
+4,3,11,created,0.4
+6,3,12,created,0.2

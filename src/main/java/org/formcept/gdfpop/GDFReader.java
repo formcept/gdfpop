@@ -35,7 +35,7 @@ public class GDFReader {
 	 * @param gdfis An {@link InputStream} of GDF data
 	 */
 	public static void inputGraph(final Graph g, final InputStream gdfis){
-		GDFReader.inputGraph(g, gdfis, 1000, "\"");
+		GDFReader.inputGraph(g, gdfis, 1000, "\"", null);
 	}
 	
 	/**
@@ -45,7 +45,19 @@ public class GDFReader {
 	 * @param buf amount of elements to hold in memory before committing a transaction
 	 */
 	public static void inputGraph(final Graph g, final InputStream gdfis, int buf){
-		GDFReader.inputGraph(g, gdfis, buf, "\"");
+		GDFReader.inputGraph(g, gdfis, buf, "\"", null);
+	}
+	
+	/**
+	 * Inputs the GDF Stream data into {@link Graph}
+	 * @param g Target {@link Graph} to be populated
+	 * @param gdfis An {@link InputStream} of GDF data
+	 * @param buf amount of elements to hold in memory before committing a transaction
+	 * @param eidp Name of the edge ID property
+	 */
+	public static void inputGraph(final Graph g,
+			final InputStream gdfis, int buf, String eidp){
+		GDFReader.inputGraph(g, gdfis, buf, "\"", eidp);
 	}
 	
 	/**
@@ -53,9 +65,11 @@ public class GDFReader {
 	 * @param g Target {@link Graph} to be populated
 	 * @param gdfis An {@link InputStream} of GDF data
 	 * @param quote Quote character, like- " or '
+	 * @param eidp Name of the edge ID property
 	 */
-	public static void inputGraph(final Graph g, final InputStream gdfis, String quote){
-		GDFReader.inputGraph(g, gdfis, 1000, quote);
+	public static void inputGraph(final Graph g,
+			final InputStream gdfis, String quote, String eidp){
+		GDFReader.inputGraph(g, gdfis, 1000, quote, eidp);
 	}
 	
 	/**
@@ -64,9 +78,10 @@ public class GDFReader {
 	 * @param gdfis An {@link InputStream} of GDF data
 	 * @param buf amount of elements to hold in memory before committing a transaction
 	 * @param quote Quote character, like- " or '
+	 * @param eidp Name of the edge ID property
 	 */
-	public static void inputGraph(final Graph g,
-			final InputStream gdfis, int buf, String quote){
+	public static void inputGraph(final Graph g, final InputStream gdfis,
+			int buf, String quote, String eidp){
 		// to scan through the gdf data
 		Scanner fsc = new Scanner(gdfis);
 		final BatchGraph<?> graph = BatchGraph.wrap(g, buf);
@@ -106,7 +121,7 @@ public class GDFReader {
 				// get the tokens
 				String[] tokens = lntxt.split(fmtreg);
 				if(edgedef) {
-					addEdge(graph, tokens, eprops, eattr, quote);
+					addEdge(graph, tokens, eprops, eattr, quote, eidp);
 				} else {
 					addVertex(graph, tokens, nprops, nattr, quote);
 				}
@@ -123,9 +138,10 @@ public class GDFReader {
 	 * @param eprops {@link List} of Properties
 	 * @param eattr {@link Map} of Attributes
 	 * @param quote Quote character, like- " or '
+	 * @param eidp Name of the edge ID property
 	 */
 	private static void addEdge(Graph graph, String[] tokens, List<String> eprops,
-			Map<String, Map<String, Object>> eattr, String quote) {
+			Map<String, Map<String, Object>> eattr, String quote, String eidp) {
 		// base check
 		if(eprops.isEmpty() || (tokens.length < 2)) return;
 		// check for at-least two properties
@@ -168,8 +184,14 @@ public class GDFReader {
 				if(value != null) epropVals.put(eprop, value);
 			}
 		}
+		// look for an ID
+		String eid = null;
+		if((eidp != null) && (epropVals.containsKey(eidp)) && 
+				(epropVals.get(eidp) != null)){
+			eid = (String) epropVals.get(eidp);
+		}
 		// create the edge
-		Edge ed = graph.addEdge(null, svtx, tvtx, edgeLbl);
+		Edge ed = graph.addEdge(eid, svtx, tvtx, edgeLbl);
 		for(String ep : epropVals.keySet()){
 			ed.setProperty(ep, epropVals.get(ep));
 		}
@@ -202,15 +224,10 @@ public class GDFReader {
 			// get the index of the property
 			int pidx = nprops.indexOf(nprop);
 			if(pidx < tokens.length){
-				// check for vertex Name/ID
-				if((pidx == 0) || (nprop.equalsIgnoreCase("name"))){
-					continue;
-				} else {
-					// set vertex property
-					String tokval = clearToken(tokens[pidx], quote);
-					Object value = getValue(nprop, tokval, nattr);
-					if(value != null) v.setProperty(nprop, value);
-				}
+				// set vertex property
+				String tokval = clearToken(tokens[pidx], quote);
+				Object value = getValue(nprop, tokval, nattr);
+				if(value != null) v.setProperty(nprop, value);
 			} else {
 				// check if default value is defined
 				Object value = getValue(nprop, null, nattr);
