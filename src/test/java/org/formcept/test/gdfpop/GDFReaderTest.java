@@ -102,7 +102,7 @@ public class GDFReaderTest {
 	@Test
 	public void testComplexPropWithSingleQuotesGDF() {
 		Graph graph = new TinkerGraph();
-		GDFReader.inputGraph(graph, GDFReader.class.getResourceAsStream("graph-example-7.gdf"), "'");
+		GDFReader.inputGraph(graph, GDFReader.class.getResourceAsStream("graph-example-7.gdf"), "'", null);
 		
 		Vertex a = graph.getVertex("a");
 		assertTrue("First vertex found", a != null);
@@ -164,6 +164,8 @@ public class GDFReaderTest {
 				assertEquals("Edge (c,a) directed is null", null, ed.getProperty("directed"));
 				assertEquals("Edge (c,a) color is null", null, ed.getProperty("color"));
 				assertEquals("Edge (c,a) weight is 100", 100L, ed.getProperty("weight"));
+			} else {
+				fail("No such edge for source: " + src);
 			}
 		}
 		
@@ -174,7 +176,7 @@ public class GDFReaderTest {
 	@Test
 	public void testComplexPropWithDoubleQuotesGDF() {
 		Graph graph = new TinkerGraph();
-		GDFReader.inputGraph(graph, GDFReader.class.getResourceAsStream("graph-example-8.gdf"), "\"");
+		GDFReader.inputGraph(graph, GDFReader.class.getResourceAsStream("graph-example-8.gdf"), "\"", null);
 		
 		Vertex a = graph.getVertex("a");
 		assertTrue("First vertex found", a != null);
@@ -236,6 +238,113 @@ public class GDFReaderTest {
 				assertEquals("Edge (c,a) directed is null", null, ed.getProperty("directed"));
 				assertEquals("Edge (c,a) color is null", null, ed.getProperty("color"));
 				assertEquals("Edge (c,a) weight is 100", 100L, ed.getProperty("weight"));
+			} else {
+				fail("No such edge for source: " + src);
+			}
+		}
+		
+		graph.shutdown();
+		
+	}
+	
+	@Test
+	public void testVertexNameAndEdgeIDGDF() {
+		Graph graph = new TinkerGraph();
+		GDFReader.inputGraph(graph, GDFReader.class.getResourceAsStream("graph-example-9.gdf"), "\"", "name");
+		
+		Vertex one = graph.getVertex("1");
+		assertTrue("Vertex 1 found", one != null);
+		assertEquals("Vertex Name is 1'", "1", one.getId());
+		assertEquals("Vertex also has a name property 1", "1", one.getProperty("name"));
+		assertEquals("Vertex Label is marko", "marko", one.getProperty("label"));
+		assertEquals("Vertex Age is 29", 29, one.getProperty("age"));
+		assertEquals("Vertex Lang is null", null, one.getProperty("lang"));
+		
+		Vertex two = graph.getVertex("2");
+		assertTrue("Vertex 2 found", two != null);
+		assertEquals("Vertex Name is 2'", "2", two.getId());
+		assertEquals("Vertex also has a name property 2", "2", two.getProperty("name"));
+		assertEquals("Vertex Label is vadas", "vadas", two.getProperty("label"));
+		assertEquals("Vertex Age is 27", 27, two.getProperty("age"));
+		assertEquals("Vertex Lang is null", null, two.getProperty("lang"));
+		
+		Vertex three = graph.getVertex("3");
+		assertTrue("Vertex 3 found", three != null);
+		assertEquals("Vertex Name is 3'", "3", three.getId());
+		assertEquals("Vertex also has a name property 3", "3", three.getProperty("name"));
+		assertEquals("Vertex Label is lop", "lop", three.getProperty("label"));
+		assertEquals("Vertex Age is null", null, three.getProperty("age"));
+		assertEquals("Vertex Lang is java", "java", three.getProperty("lang"));
+		
+		Vertex four = graph.getVertex("4");
+		assertTrue("Vertex 4 found", four != null);
+		assertEquals("Vertex Name is 4'", "4", four.getId());
+		assertEquals("Vertex also has a name property 4", "4", four.getProperty("name"));
+		assertEquals("Vertex Label is josh", "josh", four.getProperty("label"));
+		assertEquals("Vertex Age is 32", 32, four.getProperty("age"));
+		assertEquals("Vertex Lang is null", null, four.getProperty("lang"));
+		
+		Vertex five = graph.getVertex("5");
+		assertTrue("Vertex 5 found", five != null);
+		assertEquals("Vertex Name is 5'", "5", five.getId());
+		assertEquals("Vertex also has a name property 5", "5", five.getProperty("name"));
+		assertEquals("Vertex Label is ripple", "ripple", five.getProperty("label"));
+		assertEquals("Vertex Age is null", null, five.getProperty("age"));
+		assertEquals("Vertex Lang is java", "java", five.getProperty("lang"));
+		
+		Vertex six = graph.getVertex("6");
+		assertTrue("Vertex 6 found", six != null);
+		assertEquals("Vertex Name is 6'", "6", six.getId());
+		assertEquals("Vertex also has a name property 6", "6", six.getProperty("name"));
+		assertEquals("Vertex Label is peter", "peter", six.getProperty("label"));
+		assertEquals("Vertex Age is 35", 35, six.getProperty("age"));
+		assertEquals("Vertex Lang is null", null, six.getProperty("lang"));
+		
+		Iterator<Edge> eitr = graph.getEdges().iterator();
+		List<Edge> elst = new ArrayList<Edge>();
+		while(eitr.hasNext()){
+			elst.add(eitr.next());
+		}
+		assertEquals("Six edges found", 6, elst.size());
+		for(Edge ed : elst){
+			if(ed.getId().equals("7")){
+				assertEquals("Source is vertex '1'", "1", ed.getVertex(Direction.OUT).getId());
+				assertEquals("Target is vertex '2'", "2", ed.getVertex(Direction.IN).getId());
+				assertEquals("Edge label is knows", "knows", ed.getLabel());
+				assertEquals("Edge (1,2) name is 7", "7", ed.getProperty("name"));
+				assertEquals("Edge (1,2) weight is 0.5", 0.5f, ed.getProperty("weight"));
+			} else if(ed.getId().equals("8")){
+				assertEquals("Source is vertex '1'", "1", ed.getVertex(Direction.OUT).getId());
+				assertEquals("Target is vertex '4'", "4", ed.getVertex(Direction.IN).getId());
+				assertEquals("Edge label is knows", "knows", ed.getLabel());
+				assertEquals("Edge (1,4) name is 8", "8", ed.getProperty("name"));
+				assertEquals("Edge (1,4) weight is 1.0", 1.0f, ed.getProperty("weight"));
+			} else if(ed.getId().equals("9")){
+				assertEquals("Source is vertex '1'", "1", ed.getVertex(Direction.OUT).getId());
+				assertEquals("Target is vertex '3'", "3", ed.getVertex(Direction.IN).getId());
+				assertEquals("Edge label is created", "created", ed.getLabel());
+				assertEquals("Edge (1,3) name is 9", "9", ed.getProperty("name"));
+				assertEquals("Edge (1,3) weight is 0.4", 0.4f, ed.getProperty("weight"));
+			} else if(ed.getId().equals("10")){
+				assertEquals("Source is vertex '4'", "4", ed.getVertex(Direction.OUT).getId());
+				assertEquals("Target is vertex '5'", "5", ed.getVertex(Direction.IN).getId());
+				assertEquals("Edge label is created", "created", ed.getLabel());
+				assertEquals("Edge (4,5) name is 10", "10", ed.getProperty("name"));
+				assertEquals("Edge (4,5) weight is 1.0", 1.0f, ed.getProperty("weight"));
+			} else if(ed.getId().equals("11")){
+				assertEquals("Source is vertex '4'", "4", ed.getVertex(Direction.OUT).getId());
+				assertEquals("Target is vertex '3'", "3", ed.getVertex(Direction.IN).getId());
+				assertEquals("Edge label is created", "created", ed.getLabel());
+				assertEquals("Edge (4,3) name is 11", "11", ed.getProperty("name"));
+				assertEquals("Edge (4,3) weight is 0.4", 0.4f, ed.getProperty("weight"));
+			} else if(ed.getId().equals("12")){
+				assertEquals("Source is vertex '6'", "6", ed.getVertex(Direction.OUT).getId());
+				assertEquals("Target is vertex '3'", "3", ed.getVertex(Direction.IN).getId());
+				assertEquals("Edge label is created", "created", ed.getLabel());
+				assertEquals("Edge (6,3) name is 12", "12", ed.getProperty("name"));
+				assertEquals("Edge (6,3) weight is 0.2", 0.2f, ed.getProperty("weight"));
+			} else {
+				fail("No such edge: " + ed.getId());
 			}
 		}
 		
