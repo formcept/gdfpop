@@ -46,7 +46,7 @@
 		
 		<!-- Dependencies -->
 		<blueprints.core.version>2.6.0</blueprints.core.version>
-		<junit.version>4.11</junit.version>
+		<junit.version>4.13.1</junit.version>
 	</properties>
 
 	<dependencies>
